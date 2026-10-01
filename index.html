@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quota Attainment & Deal Winning System</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:Arial,sans-serif;background:#F4F6F7;color:#1a1a1a;font-size:14px}
+  .header{background:#1A5276;color:#fff;padding:16px 24px}
+  .header h1{font-size:20px;font-weight:600}
+  .header p{font-size:12px;color:#B8D4F0;margin-top:4px}
+  .nav{background:#fff;border-bottom:1px solid #e0e0e0;padding:0 24px;display:flex;flex-wrap:wrap;gap:4px;padding-top:10px}
+  .nav-btn{font-size:11px;font-weight:500;padding:6px 12px;border:1px solid #ddd;background:#fff;color:#555;cursor:pointer;border-radius:6px 6px 0 0;margin-bottom:-1px;transition:all .15s}
+  .nav-btn.active{background:#1A5276;color:#fff;border-color:#1A5276}
+  .nav-btn:hover:not(.active){background:#EBF5FB;color:#1A5276}
+  .content{padding:24px;max-width:1100px;margin:0 auto}
+  .section{display:none}.section.active{display:block}
+  .info{background:#EBF5FB;border:1px solid #AED6F1;border-radius:8px;padding:12px 16px;font-size:13px;color:#154360;line-height:1.6;margin-bottom:16px}
+  .warn{background:#FEF9E7;border:1px solid #F9E79F;border-radius:8px;padding:12px 16px;font-size:13px;color:#7D6608;line-height:1.6;margin-bottom:16px}
+  .win{background:#EAFAF1;border:1px solid #A9DFBF;border-radius:8px;padding:12px 16px;font-size:13px;color:#1E8449;line-height:1.6;margin-bottom:16px}
+  .h2{font-size:16px;font-weight:600;color:#1A5276;margin:20px 0 10px;padding-bottom:6px;border-bottom:2px solid #AED6F1}
+  .h3{font-size:13px;font-weight:600;color:#0F6E56;margin:14px 0 8px}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:16px}
+  th{background:#1A5276;color:#fff;padding:8px 10px;text-align:left;font-weight:600;font-size:11px}
+  td{padding:8px 10px;border-bottom:1px solid #e8e8e8;vertical-align:top;line-height:1.5;color:#2c2c2c}
+  tr:nth-child(even) td{background:#F8F9FA}
+  td:first-child{font-weight:600;color:#1a1a1a}
+  .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+  .calc-card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:14px}
+  .calc-label{font-size:12px;color:#555;margin-bottom:4px}
+  .calc-input{width:100%;padding:6px 10px;border:1px solid #ccc;border-radius:6px;font-size:14px;font-weight:500;color:#1A5276}
+  .results-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+  .result-card{border-radius:8px;padding:12px;text-align:center}
+  .result-card.blue{background:#EBF5FB;border:1px solid #AED6F1}
+  .result-card.teal{background:#EAFAF1;border:1px solid #A9DFBF}
+  .result-card.amber{background:#FEF9E7;border:1px solid #F9E79F}
+  .result-val{font-size:22px;font-weight:700;color:#1A5276;margin-bottom:2px}
+  .result-card.teal .result-val{color:#0F6E56}
+  .result-card.amber .result-val{color:#7D6608}
+  .result-lbl{font-size:10px;color:#777;line-height:1.4}
+  .deal-steps{display:flex;gap:0;margin-bottom:16px;border-radius:8px;overflow:hidden;border:1px solid #ddd}
+  .ds{flex:1;padding:10px 6px;text-align:center;background:#f8f9fa;cursor:pointer;border-right:1px solid #ddd;transition:all .15s}
+  .ds:last-child{border-right:none}
+  .ds:hover{background:#EBF5FB}
+  .ds.active{background:#1A5276}
+  .ds-num{font-size:18px;font-weight:700;color:#999}
+  .ds.active .ds-num{color:#fff}
+  .ds-lbl{font-size:9px;color:#aaa;margin-top:2px;line-height:1.3}
+  .ds.active .ds-lbl{color:#B8D4F0}
+  .step-pane{display:none}.step-pane.active{display:block}
+  .check-list{list-style:none}
+  .check-list li{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f0;cursor:pointer;font-size:13px;color:#333;line-height:1.5}
+  .check-list li:last-child{border-bottom:none}
+  .check-list li.done{color:#aaa;text-decoration:line-through}
+  .chk{width:18px;height:18px;border:2px solid #ccc;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-top:1px;transition:all .15s}
+  .check-list li.done .chk{background:#0F6E56;border-color:#0F6E56;color:#fff}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .card{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:14px;margin-bottom:10px}
+  .card h4{font-size:13px;font-weight:600;color:#1A5276;margin-bottom:6px}
+  .card p{font-size:12px;color:#555;line-height:1.6}
+  .badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:12px;margin-right:4px}
+  .b-blue{background:#EBF5FB;color:#1A5276}
+  .b-teal{background:#EAFAF1;color:#0F6E56}
+  .b-amber{background:#FEF9E7;color:#7D6608}
+  .b-red{background:#FDEDEC;color:#922B21}
+  .dot-row{display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f0f0f0;font-size:12px;color:#333;line-height:1.5}
+  .dot-row:last-child{border-bottom:none}
+  .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+  .d-blue{background:#2E86C1}.d-teal{background:#17A589}.d-amber{background:#CA6F1E}.d-purple{background:#7D3C98}
+  @media(max-width:600px){.calc-grid,.results-grid,.two-col{grid-template-columns:1fr}.deal-steps{flex-wrap:wrap}.ds{min-width:25%}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Quota Attainment & Deal Winning System</h1>
+  <p>Sharper Shape CORE &nbsp;·&nbsp; Melvin Williams, VP Enterprise Sales &nbsp;·&nbsp; Version 1.0</p>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="show('math',this)">1. Know your number</button>
+  <button class="nav-btn" onclick="show('daily',this)">2. Daily rhythm</button>
+  <button class="nav-btn" onclick="show('weekly',this)">3. Weekly rhythm</button>
+  <button class="nav-btn" onclick="show('monthly',this)">4. Monthly review</button>
+  <button class="nav-btn" onclick="show('deal7',this)">5. 7-step deal win</button>
+  <button class="nav-btn" onclick="show('greenfield',this)">6. Greenfield pipeline</button>
+  <button class="nav-btn" onclick="show('forecast',this)">7. Forecasting</button>
+  <button class="nav-btn" onclick="show('pc',this)">8. Player-coach OS</button>
+  <button class="nav-btn" onclick="show('compete',this)">9. Win competitive</button>
+  <button class="nav-btn" onclick="show('behaviors',this)">10. Winning behaviors</button>
+</div>
+
+<div class="content">
+
+<!-- STEP 1 -->
+<div id="math" class="section active">
+  <div class="h2">Step 1 — Know Your Number: Build Backward from Quota</div>
+  <div class="info">You cannot hit a number you have not broken down. Enter your quota below and every weekly activity target calculates automatically.</div>
+  <div class="calc-grid">
+    <div class="calc-card"><p class="calc-label">Annual ARR Quota ($)</p><input class="calc-input" id="quota" value="2000000" oninput="calc()"></div>
+    <div class="calc-card"><p class="calc-label">Average Deal Size / ACV ($)</p><input class="calc-input" id="acv" value="350000" oninput="calc()"></div>
+    <div class="calc-card"><p class="calc-label">Close Rate — Qualified to Close (%)</p><input class="calc-input" id="cr" value="25" oninput="calc()"></div>
+    <div class="calc-card"><p class="calc-label">Discovery Calls per Qualified Opp</p><input class="calc-input" id="dq" value="3" oninput="calc()"></div>
+    <div class="calc-card"><p class="calc-label">Outreach Touches per Booked Discovery</p><input class="calc-input" id="td" value="8" oninput="calc()"></div>
+  </div>
+  <div class="results-grid">
+    <div class="result-card blue"><div class="result-val" id="r1">6</div><div class="result-lbl">Deals needed to hit quota</div></div>
+    <div class="result-card blue"><div class="result-val" id="r2">$6M</div><div class="result-lbl">Pipeline needed (3x coverage)</div></div>
+    <div class="result-card teal"><div class="result-val" id="r3">24</div><div class="result-lbl">Qualified opps needed</div></div>
+    <div class="result-card teal"><div class="result-val" id="r4">6</div><div class="result-lbl">Discovery calls per month</div></div>
+    <div class="result-card amber"><div class="result-val" id="r5">48</div><div class="result-lbl">Outreach touches per month</div></div>
+    <div class="result-card amber"><div class="result-val" id="r6">12</div><div class="result-lbl">Outreach touches per week</div></div>
+  </div>
+  <div class="win">These are starting estimates. Track your actual ratios from Day 1 and recalibrate monthly. If your close rate improves, you need less pipeline. If discovery-to-qualified drops, you need more top-of-funnel activity.</div>
+</div>
+
+<!-- STEP 2 -->
+<div id="daily" class="section">
+  <div class="h2">Step 2 — Daily Operating Rhythm</div>
+  <div class="warn">Quota is won or lost in daily habits nobody sees. The 8–10am prospecting block is sacred — never sacrifice it for admin or internal meetings.</div>
+  <table>
+    <tr><th>Time Block</th><th>Activity</th><th>Why It Matters</th></tr>
+    <tr><td>7:00–7:30 AM</td><td>Pipeline review, CRM update, set today's top 3 priorities</td><td>Set intention. Don't start reactive.</td></tr>
+    <tr><td style="color:#C0392B">8:00–10:00 AM 🔒</td><td><strong>PROTECTED: Prospecting</strong> — outreach, LinkedIn, cold email, research. No exceptions.</td><td>Top-of-funnel is the job. Protect it daily or it disappears.</td></tr>
+    <tr><td>10:00 AM–12:00 PM</td><td>Discovery calls, demos, executive conversations</td><td>Peak energy for high-stakes conversations.</td></tr>
+    <tr><td>12:00–1:00 PM</td><td>Lunch + async follow-up, CRM notes from morning calls</td><td>Log while fresh. CRM hygiene = forecast accuracy.</td></tr>
+    <tr><td>1:00–3:00 PM</td><td>Proposal prep, deal strategy, internal meetings, cross-functional alignment</td><td>Deep work on advancing deals.</td></tr>
+    <tr><td>3:00–4:30 PM</td><td>Follow-up calls, BDR coaching, pipeline review</td><td>Cadence calls, BDR direction, deal unsticking.</td></tr>
+    <tr><td>4:30–5:00 PM</td><td>End-of-day CRM update, tomorrow prep, flag anything at risk</td><td>Close the loop. Nothing slips from missing notes.</td></tr>
+  </table>
+  <div class="h3">Daily Non-Negotiables — tap to check off</div>
+  <ul class="check-list" id="d-checks">
+    <li onclick="chk(this)"><div class="chk"></div>5 new personalized outreach touches (email, LinkedIn, phone)</li>
+    <li onclick="chk(this)"><div class="chk"></div>All call notes in CRM same day — no exceptions</li>
+    <li onclick="chk(this)"><div class="chk"></div>At least 1 executive conversation (prospect or existing deal)</li>
+    <li onclick="chk(this)"><div class="chk"></div>MEDDPICC updated on any deal that moved today</li>
+    <li onclick="chk(this)"><div class="chk"></div>1 piece of account research — know something new about a target account</li>
+  </ul>
+</div>
+
+<!-- STEP 3 -->
+<div id="weekly" class="section">
+  <div class="h2">Step 3 — Weekly Execution Rhythm</div>
+  <table>
+    <tr><th>Day</th><th>Focus</th><th>Key Actions</th></tr>
+    <tr><td>Monday</td><td><span class="badge b-blue">Plan</span></td><td>Full pipeline review. Identify stuck deals. Set week's top 5 priorities. Fire Monday morning outreach sequence.</td></tr>
+    <tr><td>Tuesday</td><td><span class="badge b-teal">Prospect</span></td><td>Heavy prospecting day. New account research. LinkedIn outreach. Email sequences. BDR sync.</td></tr>
+    <tr><td>Wednesday</td><td><span class="badge b-blue">Execute</span></td><td>Block for prospect-facing calls. Mid-week deal reviews. Send proposals if ready.</td></tr>
+    <tr><td>Thursday</td><td><span class="badge b-amber">Executive</span></td><td>C-level outreach and follow-ups. Strategic account meetings. Internal alignment on key deals.</td></tr>
+    <tr><td>Friday</td><td><span class="badge b-teal">Hygiene</span></td><td>CRM audit. Update MEDDPICC all active deals. Prep weekly forecast. Plan next week's outreach.</td></tr>
+  </table>
+  <div class="h3">Weekly Targets — Leading Indicators</div>
+  <table>
+    <tr><th>Activity</th><th>Weekly Target</th></tr>
+    <tr><td>New executive contacts added</td><td>5+</td></tr>
+    <tr><td>Outreach touches (email / LinkedIn / phone)</td><td>12–15</td></tr>
+    <tr><td>Discovery calls completed</td><td>2–3</td></tr>
+    <tr><td>Demos delivered</td><td>1–2</td></tr>
+    <tr><td>New qualified pipeline added</td><td>$100K–$300K</td></tr>
+    <tr><td>CRM update compliance</td><td>100% — no exceptions</td></tr>
+  </table>
+</div>
+
+<!-- STEP 4 -->
+<div id="monthly" class="section">
+  <div class="h2">Step 4 — Monthly Review & Recalibration</div>
+  <div class="h3">Monthly Business Review Checklist — tap to check off</div>
+  <ul class="check-list" id="m-checks">
+    <li onclick="chk(this)"><div class="chk"></div>Pull full pipeline report — every deal, every stage, last activity date</li>
+    <li onclick="chk(this)"><div class="chk"></div>Flag any deal with no activity in 14+ days — these are at risk or dead</li>
+    <li onclick="chk(this)"><div class="chk"></div>Recalculate pipeline coverage against quota — are you above 3x?</li>
+    <li onclick="chk(this)"><div class="chk"></div>Review close rate vs. target — adjust activity levels if behind plan</li>
+    <li onclick="chk(this)"><div class="chk"></div>Identify the one account most likely to close next month — focus resources there</li>
+    <li onclick="chk(this)"><div class="chk"></div>Review outreach conversion rates — which messages and channels are working?</li>
+    <li onclick="chk(this)"><div class="chk"></div>BDR review — pipeline contribution, outreach quality, sequence performance</li>
+    <li onclick="chk(this)"><div class="chk"></div>Forecast call with leadership — commit number, upside, risk. No surprises.</li>
+  </ul>
+  <div class="h3" style="margin-top:20px">Pipeline Health Check</div>
+  <table>
+    <tr><th>Metric</th><th>🟢 Green</th><th>🟡 Yellow</th><th>🔴 Red — Act Now</th></tr>
+    <tr><td>Pipeline coverage</td><td>3x+ quota</td><td>2–3x quota</td><td>Below 2x quota</td></tr>
+    <tr><td>Deals with active next step</td><td>90%+ of pipeline</td><td>75–90%</td><td>Below 75%</td></tr>
+    <tr><td>Deals with confirmed EB access</td><td>80%+ of qualified</td><td>60–80%</td><td>Below 60%</td></tr>
+    <tr><td>Forecast accuracy (prior month)</td><td>Within 10%</td><td>10–20% off</td><td>20%+ off</td></tr>
+    <tr><td>New pipeline added this month</td><td>On pace for annual target</td><td>10–20% behind</td><td>20%+ behind</td></tr>
+  </table>
+</div>
+
+<!-- STEP 5 -->
+<div id="deal7" class="section">
+  <div class="h2">Step 5 — The 7-Step Deal Winning Framework</div>
+  <div class="win">Every deal you win goes through these 7 steps. Skip one and the deal stalls or dies. Use this as your checklist on every active opportunity.</div>
+  <div class="deal-steps">
+    <div class="ds active" onclick="sd(1,this)"><div class="ds-num">1</div><div class="ds-lbl">Qualify</div></div>
+    <div class="ds" onclick="sd(2,this)"><div class="ds-num">2</div><div class="ds-lbl">Open top</div></div>
+    <div class="ds" onclick="sd(3,this)"><div class="ds-num">3</div><div class="ds-lbl">Discovery</div></div>
+    <div class="ds" onclick="sd(4,this)"><div class="ds-num">4</div><div class="ds-lbl">Champion</div></div>
+    <div class="ds" onclick="sd(5,this)"><div class="ds-num">5</div><div class="ds-lbl">Evaluate</div></div>
+    <div class="ds" onclick="sd(6,this)"><div class="ds-num">6</div><div class="ds-lbl">Close</div></div>
+    <div class="ds" onclick="sd(7,this)"><div class="ds-num">7</div><div class="ds-lbl">Paper</div></div>
+  </div>
+  <div id="sp1" class="step-pane active">
+    <div class="h3">Step 1 — Qualify Hard Before You Invest</div>
+    <div class="warn">The fastest way to miss quota is spending time on deals you cannot close. Answer all 6 questions before investing more than 2 hours.</div>
+    <table><tr><th>Gate</th><th>Question</th><th>Disqualify if...</th></tr>
+    <tr><td>Metrics</td><td>Can they quantify the cost of their problem?</td><td>They will not put a number on the pain</td></tr>
+    <tr><td>Economic Buyer</td><td>Do you know who controls this budget?</td><td>You cannot get access to the EB</td></tr>
+    <tr><td>Identify Pain</td><td>Is there a specific, urgent, funded problem?</td><td>Pain is vague, future-dated, or unfunded</td></tr>
+    <tr><td>Champion</td><td>Is there someone who will fight for this internally?</td><td>No one inside is invested in change</td></tr>
+    <tr><td>Timeline</td><td>Is there a real decision timeline?</td><td>Indefinite timeline, no compelling event</td></tr>
+    <tr><td>Competition</td><td>Do you know what you are up against?</td><td>No visibility into evaluation criteria</td></tr></table>
+  </div>
+  <div id="sp2" class="step-pane">
+    <div class="h3">Step 2 — Open Every Deal at the Top</div>
+    <div class="info">Start at VP Asset Management or COO level. Do not let yourself get stuck at manager level.</div>
+    <div class="dot-row"><div class="dot d-blue"></div>Managers cannot approve multi-year SaaS contracts — you will need to re-sell upward anyway</div>
+    <div class="dot-row"><div class="dot d-blue"></div>Executive relationships compress sales cycles — a VP can unlock 6 months of procurement in one conversation</div>
+    <div class="dot-row"><div class="dot d-blue"></div>Starting at the top signals partnership, not vendor status</div>
+    <div style="margin-top:12px;padding:12px;background:#EAFAF1;border-radius:8px;font-size:12px;color:#1E8449;line-height:1.6"><strong>Door opener:</strong> "We just completed a 5-year agreement with PG&E — I would like to share what drove that decision with you directly." That sentence opens executive doors.</div>
+  </div>
+  <div id="sp3" class="step-pane">
+    <div class="h3">Step 3 — Run a Structured Discovery</div>
+    <div class="info">Discovery is not fact-finding. It is pain amplification. Goal: get the prospect to articulate their pain in their own words.</div>
+    <table><tr><th>Phase</th><th>Goal</th><th>Key Question</th></tr>
+    <tr><td>Current state</td><td>Understand today's process</td><td>"Walk me through your current vegetation management and inspection process end to end."</td></tr>
+    <tr><td>Pain identification</td><td>Get them to name the problem</td><td>"Where does that process break down? What keeps you up at night about it?"</td></tr>
+    <tr><td>Impact quantification</td><td>Put a number on the pain</td><td>"What does that cost you in dollars, hours, or regulatory exposure?"</td></tr>
+    <tr><td>Future state</td><td>Define what good looks like</td><td>"If you solved this perfectly, what would that mean for your operations?"</td></tr>
+    <tr><td>Political map</td><td>Identify who else is involved</td><td>"Who else is affected by this? Who would be part of the decision?"</td></tr>
+    <tr><td>Compelling event</td><td>Find the forcing function</td><td>"Is there a deadline or regulatory cycle driving when this needs to be solved?"</td></tr></table>
+  </div>
+  <div id="sp4" class="step-pane">
+    <div class="h3">Step 4 — Build and Enable Your Champion</div>
+    <div class="info">Your champion is your internal seller. They present CORE when you are not in the room. A deal without a champion is a deal at risk.</div>
+    <div class="dot-row"><div class="dot d-teal"></div><strong>Test influence:</strong> ask them to arrange a meeting with the EB. If they can't, they're not a real champion.</div>
+    <div class="dot-row"><div class="dot d-teal"></div><strong>Arm them:</strong> one-pager with the ROI model in their specific numbers — something they can share internally</div>
+    <div class="dot-row"><div class="dot d-teal"></div><strong>Coach objections:</strong> walk through every internal objection and give them the answer</div>
+    <div class="dot-row"><div class="dot d-teal"></div><strong>Stay in contact:</strong> weekly check-ins to track internal momentum and surface blockers early</div>
+    <div class="dot-row"><div class="dot d-teal"></div><strong>Never replace them:</strong> adding new stakeholders does not eliminate the need for your original champion</div>
+  </div>
+  <div id="sp5" class="step-pane">
+    <div class="h3">Step 5 — Control the Evaluation</div>
+    <div class="warn">Most deals are lost during evaluation because the seller goes silent and lets the prospect lead. Own this phase completely.</div>
+    <table><tr><th>Tool</th><th>Purpose</th><th>When to Deploy</th></tr>
+    <tr><td>Mutual Success Plan</td><td>Joint doc: evaluation steps, timeline, decision criteria, stakeholders</td><td>After first qualified discovery — sets the frame</td></tr>
+    <tr><td>Demo agenda</td><td>Pre-sent agenda mapping CORE to their stated pain points</td><td>Before every demo — never wing it</td></tr>
+    <tr><td>Executive business case</td><td>1–2 page ROI document in their specific numbers</td><td>After demo, before proposal — champion uses this internally</td></tr>
+    <tr><td>Technical review doc</td><td>CORE security, compliance, and integration specs</td><td>When IT raises questions — be ready before they ask</td></tr>
+    <tr><td>Reference call</td><td>PG&E speaks to their CORE experience</td><td>When evaluation stalls or competition heats up</td></tr></table>
+  </div>
+  <div id="sp6" class="step-pane">
+    <div class="h3">Step 6 — Close with a Compelling Event</div>
+    <div class="info">Every deal needs a real reason to close by a specific date. Create urgency that is genuine — never manufactured.</div>
+    <div class="dot-row"><div class="dot d-amber"></div><strong>Regulatory:</strong> "Your NERC FAC-003 cycle ends in Q3 — implementation takes 8 weeks. That means a decision by [date]."</div>
+    <div class="dot-row"><div class="dot d-amber"></div><strong>Budget cycle:</strong> "Your budget year closes in October. To get this in this year's plan, procurement needs the contract by [date]."</div>
+    <div class="dot-row"><div class="dot d-amber"></div><strong>Wildfire season:</strong> "Vegetation programs ramp in spring. To have CORE operational for peak season, we start implementation by [date]."</div>
+    <div class="dot-row"><div class="dot d-amber"></div><strong>Executive sponsor:</strong> "Your COO said this is an H2 priority. To hit that timeline, here is what needs to happen by when."</div>
+    <div style="margin-top:12px;padding:12px;background:#FEF9E7;border-radius:8px;font-size:12px;color:#7D6608;line-height:1.6"><strong>The close question:</strong> "Based on everything we have discussed, do you see any reason this would not move forward on [date]?" This surfaces real objections before they become surprises.</div>
+  </div>
+  <div id="sp7" class="step-pane">
+    <div class="h3">Step 7 — Paper Process: Start Early, Never Assume</div>
+    <div class="warn">More deals die in procurement than in competition. Start this conversation at Stage 3 — not after the verbal yes.</div>
+    <table><tr><th>Step</th><th>When to Start</th><th>Question to Ask</th></tr>
+    <tr><td>Procurement process review</td><td>Stage 3</td><td>"Once a decision is made, what does your contract and procurement process look like?"</td></tr>
+    <tr><td>Vendor registration</td><td>Stage 3–4</td><td>"Is there a vendor registration or pre-approval process we need to start now?"</td></tr>
+    <tr><td>IT and security review</td><td>Stage 4</td><td>"Who on your IT team should we engage for technical review? Can we set that up now?"</td></tr>
+    <tr><td>Legal review</td><td>Stage 5</td><td>"Does your legal team have standard SaaS redlines? What is the typical turnaround?"</td></tr>
+    <tr><td>Signature authority</td><td>Stage 5</td><td>"Who is the final signatory on a contract of this size?"</td></tr></table>
+  </div>
+</div>
+
+<!-- STEP 6 -->
+<div id="greenfield" class="section">
+  <div class="h2">Step 6 — Building Greenfield Pipeline</div>
+  <div class="warn">As player-coach you personally build greenfield pipeline until the team is ready. Protect your prospecting time like it is your most valuable asset — because it is.</div>
+  <div class="h3">The Prospecting System</div>
+  <table><tr><th>#</th><th>Phase</th><th>Action</th><th>Output</th></tr>
+  <tr><td>1</td><td>Account selection</td><td>Weekly: 3–5 new accounts meeting ICP. Prioritize by buying trigger.</td><td>Named account list with trigger in CRM</td></tr>
+  <tr><td>2</td><td>Research</td><td>30 min per account: trigger, 3 contacts (champion, EB, influencer), personalization hook</td><td>Account brief in CRM before first touch</td></tr>
+  <tr><td>3</td><td>Sequence launch</td><td>10-touch over 3 weeks: email + LinkedIn + phone. Every touch adds new value.</td><td>Sequence live in CRM</td></tr>
+  <tr><td>4</td><td>Executive outreach</td><td>Lead with PG&E reference + specific insight about their regulatory or operational situation</td><td>First touch opened or responded</td></tr>
+  <tr><td>5</td><td>Discovery booked</td><td>One clear CTA per touch: 20-minute conversation. No multi-ask.</td><td>Calendar invite confirmed</td></tr>
+  <tr><td>6</td><td>CRM log</td><td>Every account, every touch, logged same day — no exceptions</td><td>Accurate pipeline data</td></tr></table>
+  <div class="h3">The 10-Touch Prospecting Sequence</div>
+  <table><tr><th>Touch</th><th>Channel</th><th>Message Focus</th></tr>
+  <tr><td>1</td><td>Email</td><td>Lead with their specific trigger (wildfire, NERC cycle, helicopter cost). PG&E reference. One CTA.</td></tr>
+  <tr><td>2</td><td>LinkedIn</td><td>Connection request. Short note with industry insight. No ask yet.</td></tr>
+  <tr><td>3</td><td>Email</td><td>New value: a relevant stat or recent development specific to their utility or state.</td></tr>
+  <tr><td>4</td><td>Phone</td><td>Brief voicemail referencing prior email. Mention PG&E. Ask for 20 minutes.</td></tr>
+  <tr><td>5</td><td>LinkedIn</td><td>Follow-up referencing a post they made or company news. Ask for the conversation.</td></tr>
+  <tr><td>6</td><td>Email</td><td>Business case email — ROI framing specific to their situation. Quantify the problem.</td></tr>
+  <tr><td>7</td><td>Phone</td><td>Voicemail with a specific time slot. Create urgency with a relevant event or deadline.</td></tr>
+  <tr><td>8</td><td>Email</td><td>Last-try — value prop in 2 sentences, make it easy to say yes.</td></tr>
+  <tr><td>9</td><td>LinkedIn</td><td>Offer a different format: 5-minute call or a relevant resource.</td></tr>
+  <tr><td>10</td><td>Email</td><td>Break-up email. "Closing your file" language often generates responses from silent watchers.</td></tr></table>
+</div>
+
+<!-- STEP 7 -->
+<div id="forecast" class="section">
+  <div class="h2">Step 7 — Forecasting: Earn Organizational Trust</div>
+  <div class="warn">Your forecast is your credibility. Every miss erodes trust. Every hit builds it. Accurate forecasting separates elite sellers from average ones.</div>
+  <table><tr><th>Category</th><th>Definition</th><th>Criteria</th></tr>
+  <tr><td><span class="badge b-teal">Commit</span></td><td>You are staking your reputation on this closing</td><td>EB engaged, decision criteria met, compelling event confirmed, paper process started, no major blockers</td></tr>
+  <tr><td><span class="badge b-blue">Best case</span></td><td>Could close if everything goes right</td><td>Champion strong, EB identified but not fully engaged, some risk remaining</td></tr>
+  <tr><td><span class="badge b-amber">Pipeline</span></td><td>Qualified — not expected this period</td><td>MEDDPICC 50%+ but not ready for commit or best case</td></tr>
+  <tr><td><span class="badge b-red">At risk</span></td><td>Stalled, disqualified, or major blocker present</td><td>No activity 14+ days, EB access lost, champion gone, competitor winning</td></tr></table>
+  <div class="h3">Forecast Hygiene Rules — Non-Negotiable</div>
+  <div class="dot-row"><div class="dot d-purple"></div>Never put a deal in Commit without confirmed EB access — no exceptions</div>
+  <div class="dot-row"><div class="dot d-purple"></div>Never leave a deal in pipeline 60+ days without moving it forward or disqualifying it</div>
+  <div class="dot-row"><div class="dot d-purple"></div>Update CRM within 24 hours of any meaningful deal conversation</div>
+  <div class="dot-row"><div class="dot d-purple"></div>If you miss a committed deal, document why — build pattern recognition over time</div>
+  <div class="dot-row"><div class="dot d-purple"></div>Sandbag = lost trust. Stretch = lost trust. Accurate = earned trust.</div>
+  <div class="dot-row"><div class="dot d-purple"></div>Present upside and risk transparently — leadership respects honesty over optimism</div>
+</div>
+
+<!-- STEP 8 -->
+<div id="pc" class="section">
+  <div class="h2">Step 8 — The Player-Coach Operating System</div>
+  <div class="win">You are carrying personal quota AND building a team. These are sequenced priorities, not competing ones. You cannot coach what you have not proven.</div>
+  <div class="h3">Phase 1: Player First — Day 1 through 90</div>
+  <table><tr><th>Week</th><th>Player Priorities</th><th>Coach Actions</th></tr>
+  <tr><td>Week 1–2</td><td>Product immersion. Inherit pipeline. Install MEDDPICC on every deal.</td><td>None yet — learn before you coach.</td></tr>
+  <tr><td>Week 3–4</td><td>First executive outreach to greenfield accounts. First discovery calls.</td><td>Direct BDR outreach sequences.</td></tr>
+  <tr><td>Week 5–8</td><td>Advance inherited deals. First greenfield opps at discovery stage.</td><td>BDR weekly 1:1. Refine sequences based on response data.</td></tr>
+  <tr><td>Week 9–12</td><td>Close or advance 2–3 inherited deals. Greenfield pipeline building.</td><td>Document what works. Define first AE hire profile.</td></tr></table>
+  <div class="h3">Time Split — How the Balance Shifts Over Time</div>
+  <table><tr><th>Activity</th><th>Month 1–3</th><th>Month 4–6</th><th>Month 7–12</th></tr>
+  <tr><td>Personal selling and pipeline</td><td>80%</td><td>60%</td><td>40–50%</td></tr>
+  <tr><td>Team management and coaching</td><td>5%</td><td>20%</td><td>30%</td></tr>
+  <tr><td>GTM strategy and process</td><td>10%</td><td>15%</td><td>15%</td></tr>
+  <tr><td>Cross-functional and leadership</td><td>5%</td><td>5%</td><td>10%</td></tr></table>
+  <div class="h3">Player-Coach Milestones</div>
+  <table><tr><th>Milestone</th><th>Target Timing</th></tr>
+  <tr><td>First deal closed from inherited pipeline</td><td>Day 60</td></tr>
+  <tr><td>First greenfield opportunity at qualified stage</td><td>Day 60</td></tr>
+  <tr><td>Playbook documented (ICP, motion, deal structure)</td><td>Day 75</td></tr>
+  <tr><td>First AE hire defined and in process</td><td>Day 90</td></tr>
+  <tr><td>2–3 deals closed or at final stage</td><td>End of Q1</td></tr></table>
+</div>
+
+<!-- STEP 9 -->
+<div id="compete" class="section">
+  <div class="h2">Step 9 — Winning Competitive Deals</div>
+  <div class="h3">When Competition Enters — Six Steps</div>
+  <div class="dot-row"><div class="dot d-blue"></div><strong>Identify immediately:</strong> "Are you evaluating other approaches or vendors?" Ask directly, early.</div>
+  <div class="dot-row"><div class="dot d-blue"></div><strong>Understand their criteria:</strong> what the competitor is pitching tells you what matters most to the buyer</div>
+  <div class="dot-row"><div class="dot d-blue"></div><strong>Reinforce your strengths:</strong> AI LiDAR intelligence, T&D-specific digital twin, Grid View, PG&E 5-year reference</div>
+  <div class="dot-row"><div class="dot d-blue"></div><strong>Attack status quo first:</strong> most deals are lost to "do nothing," not to a named competitor</div>
+  <div class="dot-row"><div class="dot d-blue"></div><strong>Coach your champion:</strong> get them to articulate your differentiation in their own words</div>
+  <div class="dot-row"><div class="dot d-blue"></div><strong>Deploy the reference strategically:</strong> a PG&E call at the right moment closes competitive deals faster than any demo</div>
+  <div class="h3" style="margin-top:20px">Competitive Talk Tracks</div>
+  <table><tr><th>If they say...</th><th>Your response</th></tr>
+  <tr><td>"We use DroneDeploy"</td><td>DroneDeploy captures data well. CORE turns that data into intelligence — automated LiDAR classification, vegetation proximity detection, and a company-wide digital twin connecting every asset to its full history. Most of our customers used basic drone capture before CORE. Want to see the difference?</td></tr>
+  <tr><td>"Happy with helicopter program"</td><td>Most utilities said the same — until an audit or a vegetation outage. The question is whether you want to be proactive or reactive. What would it take for your current process to fail?</td></tr>
+  <tr><td>"Price is too high"</td><td>Let us build the business case together. What is your current annual helicopter inspection spend? Most utilities find CORE pays for itself in year one just on inspection cost reduction — before NERC penalty avoidance.</td></tr>
+  <tr><td>"We have an internal solution"</td><td>Internal tools are often great for initial capture. Does yours do automated LiDAR classification, GIS-matched digital twin, and vegetation proximity detection at scale? That is where utilities typically hit the wall.</td></tr></table>
+</div>
+
+<!-- STEP 10 -->
+<div id="behaviors" class="section">
+  <div class="h2">Step 10 — The Non-Negotiable Winning Behaviors</div>
+  <div class="info">Quota is won by discipline, not talent. These are the behaviors that separate 120% attainment from 80%. Non-negotiable means non-negotiable.</div>
+  <table><tr><th>Behavior</th><th>What It Looks Like</th><th>What Failure Looks Like</th></tr>
+  <tr><td>Protect prospecting time</td><td>2 hours daily, calendar blocked, no exceptions</td><td>Prospecting only happens when there are no calls — which means never</td></tr>
+  <tr><td>CRM discipline</td><td>Every call logged same day. Every deal has a next step. Every stage is accurate.</td><td>CRM is 2 weeks behind reality. Forecast is a guess.</td></tr>
+  <tr><td>MEDDPICC on every deal</td><td>All 8 elements updated weekly on every qualified deal</td><td>Deals stall because EB was never confirmed or paper process ignored</td></tr>
+  <tr><td>Executive-first access</td><td>VP-level contact in every active deal. EB met before Stage 4.</td><td>Stuck with a champion who cannot approve anything</td></tr>
+  <tr><td>Never let deals go dark</td><td>Every active deal has a confirmed next step before you end the call</td><td>Deals drift for 3 weeks because follow-up was vague</td></tr>
+  <tr><td>Forecast accuracy</td><td>Commit means close. No sandbag. No stretch.</td><td>Leadership stops trusting your number. Resource planning breaks.</td></tr>
+  <tr><td>Know the competition</td><td>Know every competitor's pitch, weakness, and customer profile</td><td>Caught off guard in a deal. Reactive instead of proactive.</td></tr>
+  <tr><td>Coach from live deals</td><td>Debrief every call with BDR or AE. Coach on what happened, not theory.</td><td>Team develops bad habits because feedback is absent</td></tr></table>
+</div>
+
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0, 0);
+}
+function sd(n, box) {
+  document.querySelectorAll('.step-pane').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.ds').forEach(b => b.classList.remove('active'));
+  document.getElementById('sp' + n).classList.add('active');
+  box.classList.add('active');
+}
+function chk(el) {
+  el.classList.toggle('done');
+  el.querySelector('.chk').textContent = el.classList.contains('done') ? '✓' : '';
+}
+function fmt(n) {
+  if (n >= 1000000) return '$' + (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return '$' + (n/1000).toFixed(0) + 'K';
+  return n.toString();
+}
+function calc() {
+  const q = parseFloat(document.getElementById('quota').value) || 0;
+  const a = parseFloat(document.getElementById('acv').value) || 1;
+  const c = (parseFloat(document.getElementById('cr').value) || 25) / 100;
+  const d = parseFloat(document.getElementById('dq').value) || 3;
+  const t = parseFloat(document.getElementById('td').value) || 8;
+  const deals = Math.ceil(q / a);
+  const pipe = q * 3;
+  const opps = Math.ceil(deals / c);
+  const discMo = Math.ceil(opps / 12);
+  const tMo = discMo * d * t;
+  const tWk = Math.ceil(tMo / 4);
+  document.getElementById('r1').textContent = deals;
+  document.getElementById('r2').textContent = fmt(pipe);
+  document.getElementById('r3').textContent = opps;
+  document.getElementById('r4').textContent = discMo;
+  document.getElementById('r5').textContent = tMo;
+  document.getElementById('r6').textContent = tWk;
+}
+</script>
+</body>
+</html>
